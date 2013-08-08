@@ -93,6 +93,11 @@ static EC_THREAD_FUNC(smurfer)
    LIST_HEAD(, ip_list) *ips;
    u_int16 proto;
    int (*icmp_send)(struct ip_addr*, struct ip_addr*);
+#if !defined(OS_WINDOWS)
+   struct timespec tm;
+   tm.tv_sec = 0;
+   tm.tv_nsec = 1000*1000/GBL_CONF->sampling_rate * 1000;
+#endif
 
    DEBUG_MSG("smurfer");
 
@@ -134,7 +139,12 @@ static EC_THREAD_FUNC(smurfer)
             if(ntohs(h->ip.addr_type) == proto)
                icmp_send(ip, &h->ip);
 
+#if !defined(OS_WINDOWS)
+      nanosleep(&tm, NULL);
+#else
       usleep(1000*1000/GBL_CONF->sampling_rate);
+#endif
+
    }
 
    return NULL;

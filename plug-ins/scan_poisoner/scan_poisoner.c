@@ -76,8 +76,8 @@ static int scan_poisoner_init(void *dummy)
    
 #if !defined(OS_WINDOWS)  
    struct timespec tm;
-   tm.tv_sec = GBL_CONF->arp_storm_delay;
-   tm.tv_nsec = 0; 
+   tm.tv_sec = 0;
+   tm.tv_nsec = GBL_CONF->arp_storm_delay * 1000; 
 #endif
 
    /* don't show packets while operating */

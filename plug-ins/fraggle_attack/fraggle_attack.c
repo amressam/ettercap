@@ -96,6 +96,11 @@ static EC_THREAD_FUNC(fraggler)
    u_int8 payload[8];
    u_int16 port_echo, port_chargen;
    size_t length;
+#if !defined(OS_WINDOWS)
+   struct timespec tm;
+   tm.tv_sec = 0;
+   tm.tv_nsec = 1000*1000/GBL_CONF->sampling_rate * 1000;
+#endif
 
    DEBUG_MSG("EC_THREAD_FUNC fraggler");
 
@@ -120,7 +125,12 @@ static EC_THREAD_FUNC(fraggler)
             	send_udp(ip, &h->ip, &h->mac, port_chargen, port_chargen, payload, length);
             }
 
+#if !defined(OS_WINDOWS)
+      nanosleep(&tm, NULL);
+#else
       usleep(1000*1000/GBL_CONF->sampling_rate);
+#endif
+
    }
 
    return NULL;

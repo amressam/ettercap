@@ -132,6 +132,11 @@ EC_THREAD_FUNC(nadv_poisoner)
 {
    struct hosts_list *t1, *t2;
    int ping = 1;
+#if !defined(OS_WINDOWS)
+   struct timespec tm, ts;
+   tm.tv_nsec = GBL_CONF->nadv_poison_send_delay * 1000;
+   tm.tv_sec = 0;
+#endif
 
    ec_thread_init();
    DEBUG_MSG("nadv_poisoner");
@@ -157,7 +162,12 @@ EC_THREAD_FUNC(nadv_poisoner)
             if(!(flags & ND_ONEWAY))
                send_icmp6_nadv(&t2->ip, &t1->ip, &t2->ip, GBL_IFACE->mac, flags & ND_ROUTER);
 
+#if !defined(OS_WINDOWS) 
+            nanosleep(&tm, NULL);
+#else
             usleep(GBL_CONF->nadv_poison_send_delay);
+#endif
+
          }
       }
 
@@ -268,6 +278,11 @@ static void nadv_antidote(void)
 {
    struct hosts_list *h1, *h2;
    int i;
+#if !defined(OS_WINDOWS)
+   struct timespec tm, ts;
+   tm.tv_nsec = GBL_CONF->nadv_poison_send_delay * 1000;
+   tm.tv_sec = 0;
+#endif
 
    DEBUG_MSG("nadv_antidote");
 
@@ -281,8 +296,12 @@ static void nadv_antidote(void)
             send_icmp6_nadv(&h1->ip, &h2->ip, &h1->ip, h1->mac, 0);
             if(!(flags & ND_ONEWAY))
                send_icmp6_nadv(&h2->ip, &h1->ip, &h2->ip, h2->mac, flags & ND_ROUTER);
-
+#if !defined(OS_WINDOWS) 
+            nanosleep(&tm, NULL);
+#else
             usleep(GBL_CONF->nadv_poison_send_delay);
+#endif
+
          }
       }
 

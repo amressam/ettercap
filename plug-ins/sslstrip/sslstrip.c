@@ -632,8 +632,8 @@ static int http_get_peer(struct http_connection *connection)
 
 #ifndef OS_WINDOWS
 	struct timespec tm;
-	tm.tv_sec = HTTP_WAIT;
-	tm.tv_nsec = 0;
+	tm.tv_sec = 0;
+	tm.tv_nsec = HTTP_WAIT * 1000;
 #endif
 
 	/* Wait for sniffing thread */
